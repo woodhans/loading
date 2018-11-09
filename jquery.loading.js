@@ -7,6 +7,7 @@
       init: function(el, options) {
         this.$opt = options;
         this.$elem = el;
+
         this._setup();
       },
       _setup: function() {
@@ -21,28 +22,41 @@
 
           
           for (i = 0; i < len; i++) {
-            _type = base.$opt.items[i].split('.').pop().toLowerCase();
-            _type = _type.indexOf("jpg") ==0  || _type.indexOf("png") == 0 || _type.indexOf("gif") == 0 || _type.indexOf("jpeg") == 0 ? "image" : "";//: _type == ".mp3" || _type == ".mp4" || _type == ".wav" || _type == ".ogg" || _type == ".oga" || _type == ".mpa" ? "audio" 
+            _type=base.filetype(base.$opt.items[i]);
             if (_type) {
-              try {
-                var Item =  new Image();
-                Item.src = base.$opt.items[i];
-                Item.onload = function() {
-                  n++;
-                  if (base.$opt.loadingPercent)
-                    base.$elem.find(".loading-percent").html("<span>" + parseInt(n / len * 100, 10) + "</span> %");
-                  if (base.$opt.loadingAnimate)
-                    base.$elem.find(".loading-animate").width((n / len * 100) + "%");
-  
-                  if (n == len) {
-                    base.remove();
-                    if (base.$opt.loaded)
-                      base.$opt.loaded.call();
-                  }
+              $.ajax({url:base.$opt.items[i],async:false,success:function(){
+                n++;
+                
+                base.$opt.loadingPercent && base.$elem.find(".loading-percent").html("<span>" + parseInt(n / len * 100, 10) + "</span> %");
+                
+                base.$opt.loadingAnimate && base.$elem.find(".loading-animate").width((n / len * 100) + "%");
+                if (n == len) {
+                  base.remove();
+                  
+                  typeof(base.$opt.loaded)=="function" && base.$opt.loaded.call();
                 }
-              } catch (err) {
-                n++;break;
-              }
+              },error:function(){
+                n++;
+              }})
+              // try {
+              //   var Item =  new Image();
+              //   Item.src = base.$opt.items[i];
+              //   Item.onload = function() {
+              //     n++;
+              //     if (base.$opt.loadingPercent)
+              //       base.$elem.find(".loading-percent").html("<span>" + parseInt(n / len * 100, 10) + "</span> %");
+              //     if (base.$opt.loadingAnimate)
+              //       base.$elem.find(".loading-animate").width((n / len * 100) + "%");
+  
+              //     if (n == len) {
+              //       base.remove();
+              //       if (base.$opt.loaded)
+              //         base.$opt.loaded.call();
+              //     }
+              //   }
+              // } catch (err) {
+              //   n++;break;
+              // }
             }else 
             n++;
           }
@@ -76,7 +90,7 @@
         html.push("<div class='loading-wrapper'><div class='loading-inner'>");
 
         if (base.$opt.loadingImg)
-          html.push("<div class='loading-img'>" + (typeof(base.$opt.loadingImg) == "string" ? "<img src='" + base.$opt.loadingImg + "'/>" : "") + "</div>");
+          html.push("<div class='loading-img'>" + (typeof(base.$opt.loadingImg) == "string" && base.filetype(base.$opt.loadingImg)=="IMG" ? "<img src='" + base.$opt.loadingImg + "'/>" : "") + "</div>");
         if (base.$opt.loadingAnimate)
           html.push("<div class='loading-animate-bg'><div class='loading-animate'></div></div>");
         if (base.$opt.loadingPercent)
@@ -106,6 +120,46 @@
         if (base.$opt.loadingTime)
           clearTimeout(base.$timeout);
         base.$elem.removeClass("loading-body").find('.loading-wrapper').hide().remove();
+      },
+      filetype:function(string){
+        _type=string.split('.').pop().toLowerCase().split("?")[0];
+        
+        switch(_type){
+          case "jpg" || "png" || "gif" || "jpeg" || "ico":
+          res="IMG";
+          break;
+          case "mp3" || "ogg" || "wav":
+          res="AUDIO";
+          break;
+          case "mp4" || "webm":
+          res="VIDEO";
+          break;
+          case "css":
+          res="STYLE";
+          break;
+          case "js":
+          res="SCRIPT";
+          break;
+          default:
+          res=!1;
+          break;
+        }
+        // if (_type =="jpg"  || _type == "png" || _type == "gif" || _type == "jpeg" || _type == "ico" ){
+        //   return "IMG";  
+        // }
+        // if(_type == "mp3" || _type == "ogg" || _type == "wav"){
+        //   return "AUDIO";
+        // }
+        // if(_type == "mp4" || _type == "ogg" || _type == "webm"){
+        //   return "VIDEO";
+        // }
+        // if(_type == "css"){
+        //   return "STYLE";
+        // }
+        // if(_type == "js"){
+        //   return "SCRIPT";
+        // }
+        return res;
       }
     }
   };

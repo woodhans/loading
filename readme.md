@@ -35,7 +35,8 @@ $(body).loading({
     loadingPercent: true,       //加载百分比
     loadingAnimate: true,       //加载百分比进度动画
     loadingImg: false,          //loading动画gif图片
-    customAnimate:false         //用户自定义动画，可以css或js定义
+    customAnimate:false,        //用户自定义动画，可以css或js定义
+    beforeLoading:null,         //加载开始前调用函数
 });
 ```
 ```css

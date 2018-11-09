@@ -7,7 +7,7 @@
       init: function(el, options) {
         this.$opt = options;
         this.$elem = el;
-
+        this.beforeLoading && typeof(this.beforeLoading)=="function" &&this.beforeLoading.call();
         this._setup();
       },
       _setup: function() {
@@ -37,52 +37,20 @@
                 }
               },error:function(){
                 n++;
+                console.log("未找到该文件："+base.$opt.items[i]);
               }})
-              // try {
-              //   var Item =  new Image();
-              //   Item.src = base.$opt.items[i];
-              //   Item.onload = function() {
-              //     n++;
-              //     if (base.$opt.loadingPercent)
-              //       base.$elem.find(".loading-percent").html("<span>" + parseInt(n / len * 100, 10) + "</span> %");
-              //     if (base.$opt.loadingAnimate)
-              //       base.$elem.find(".loading-animate").width((n / len * 100) + "%");
-  
-              //     if (n == len) {
-              //       base.remove();
-              //       if (base.$opt.loaded)
-              //         base.$opt.loaded.call();
-              //     }
-              //   }
-              // } catch (err) {
-              //   n++;break;
-              // }
-            }else 
-            n++;
+              
+            }else {
+              n++;
+              console.log("文件格式不对："+base.$opt.items[i]);
+            }
+            
           }
           
 
         }
       },
-      //   loadItem: function(type, n, len) {
-      //     var base = this;
-      //     var count = 0;
-      //     var Item = type == "image" ? new Image() : new Audio();
-      //     Item.src = base.$opt.items[n - 1];
-      //     Item.onload = function() {
-      //       count++;
-      //       if (base.$opt.loadingPercent)
-      //         base.$elem.find(".loading-percent").html(parseInt(n / len * 100, 10) + " %");
-      //       if (base.$opt.loadingAnimate)
-      //         base.$elem.find(".loading-animate").width((n / len * 100) + "%");
-
-      //       if (n == len) {
-      //         //base.remove();
-      //         if (base.$opt.loaded)
-      //           return base.$opt.loaded();
-      //       }
-      //     }
-      //   },
+      
 
       _generateHtml: function() {
         var base = this;
@@ -144,21 +112,7 @@
           res=!1;
           break;
         }
-        // if (_type =="jpg"  || _type == "png" || _type == "gif" || _type == "jpeg" || _type == "ico" ){
-        //   return "IMG";  
-        // }
-        // if(_type == "mp3" || _type == "ogg" || _type == "wav"){
-        //   return "AUDIO";
-        // }
-        // if(_type == "mp4" || _type == "ogg" || _type == "webm"){
-        //   return "VIDEO";
-        // }
-        // if(_type == "css"){
-        //   return "STYLE";
-        // }
-        // if(_type == "js"){
-        //   return "SCRIPT";
-        // }
+        
         return res;
       }
     }
@@ -177,7 +131,7 @@
     loadingPercent: true,
     loadingAnimate: true,
     loadingImg: true,
-    customAnimate:false
-      //beforeLoading:null
+    customAnimate:false,
+    beforeLoading:null
   };
 }(jQuery, window, document));

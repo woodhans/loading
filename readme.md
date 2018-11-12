@@ -259,7 +259,9 @@ position: relative;
 ![DEMO2效果图](./demo-img/demo-2.png "DEMO2效果图")
 
 * DEMO3
+
 页面跳转前，预加载下个页面的图片、声音、视频、css、js文件。
+
 ```html
 <html lang="en">
 

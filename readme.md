@@ -316,6 +316,7 @@ position: relative;
     height: 10px;
     top: 0;
     left: 0;
+    z-index:99999;
 }
 .loading-wrapper{}
 .loading-inner{}

@@ -5,8 +5,9 @@
   var Loading = function() {
     return {
       init: function(el, options) {
-        this.$opt = options;
-        this.$elem = el;
+        var base=this;
+        base.$opt = options;
+        base.$elem = el;
         options.beforeLoading && typeof(options.beforeLoading)=="function" &&options.beforeLoading.call();
         if(options.cancel){
           timestamps=[];
@@ -17,11 +18,11 @@
             if(timestamps.length>=2){
               timediff=timestamps[timestamps.length-1]-timestamps[timestamps.length-2];
               if(timediff<2500)
-              this.canceled();
+              base.canceled();
             }
           })
         }
-        this._setup();
+        base._setup();
       },
       _setup: function() {
         var base = this;
@@ -67,7 +68,7 @@
       loadItem:function(loadcounts){
         var base = this;
         all=base.$opt.items.length;
-        console.log(loadcounts);
+        console.log(base.filetype(base.$opt.items[loadcounts]));
         if(base.filetype(base.$opt.items[loadcounts])){
           $.ajax({url:base.$opt.items[loadcounts],async:false,success:function(){
             loadcounts++;
@@ -83,6 +84,7 @@
       },
       loaditem:function(loadcounts,all){
         var base=this;
+        
         base.$opt.loadingPercent && base.$elem.find(".loading-percent").html("<span>" + parseInt(loadcounts / all * 100, 10) + "</span> %");
             base.$opt.loadingImg && base.$elem.find(".loading-img img").data("percent",parseInt(loadcounts / all * 100) + "%");
             base.$opt.loadingAnimate && base.$elem.find(".loading-animate").width((loadcounts / all * 100) + "%");
@@ -91,6 +93,7 @@
               base.$elem.find(".loading-custom").data("percent",(loadcounts / all * 100) + "%");
               if (typeof(base.$opt.customAnimate) == "function") base.$opt.customAnimate.call();
             }
+
             if(loadcounts==all){
               
               base.$opt.loadingPercent && base.$elem.find(".loading-percent").html("<span>100</span> %");
@@ -98,7 +101,7 @@
             base.$opt.loadingAnimate && base.$elem.find(".loading-animate").width("100%");
             
             setTimeout(function(){base.remove();
-              typeof(base.$opt.loaded)=="function" && base.$opt.loaded.call();},10)
+              typeof(base.$opt.loaded)=="function" && base.$opt.loaded.call();},50)
               
             }else{
               setTimeout(function(){base.loadItem(loadcounts);},10)
@@ -110,16 +113,18 @@
         var html = [];
         
         html.push("<div class='loading-wrapper'><div class='loading-inner'>");
+        
         if (base.$opt.loadingImg)
-          html.push("<div class='loading-img'><img src='" + (typeof(base.$opt.loadingImg) == "string" && base.filetype(base.$opt.loadingImg)=="IMG" ? "" + base.$opt.loadingImg + "" : "./loading.gif") + " '/></div>");
+          html.push("<div class='loading-img'><img data-percent='0%' src='" + (typeof(base.$opt.loadingImg) == "string" && base.filetype(base.$opt.loadingImg)=="IMG" ? "" + base.$opt.loadingImg + "" : "./loading.gif") + " '/></div>");
         if (base.$opt.loadingAnimate)
           html.push("<div class='loading-animate-bg'><div class='loading-animate'></div></div>");
         if (base.$opt.loadingPercent)
           html.push("<div class='loading-percent'></div>");
         if (base.$opt.loadingTime)
           html.push("<div class='loading-time'></div>");
+        
         if (base.$opt.customAnimate)
-          html.push("<div class='loading-custom'></div>");
+          html.push("<div class='loading-custom' data-percent='0%'></div>");
         html.push("</div></div>");
         base.$elem.addClass("loading-body").append(html.join(''));
         if (base.$opt.loadingTime) {
@@ -137,38 +142,32 @@
         clearTimeout();
         if (base.$opt.loadingTime)
           clearInterval(base.$timeout);
+        
         base.$elem.removeClass("loading-body").find('.loading-wrapper').hide().remove();
       },
       canceled:function(){
         var base = this;
+        $(document).off("keydown");
         base.remove();
         typeof (base.$opt.cancel)=="function" && base.$opt.cancel.call();
       },
       filetype:function(string){
         _type=string.split('.').pop().toLowerCase().split("?")[0];
         
-        switch(_type){
-          case "jpg" || "png" || "gif" || "jpeg" || "ico":
-          res="IMG";
-          break;
-          case "mp3" || "ogg" || "wav":
-          res="AUDIO";
-          break;
-          case "mp4" || "webm":
-          res="VIDEO";
-          break;
-          case "css":
-          res="STYLE";
-          break;
-          case "js":
-          res="SCRIPT";
-          break;
-          default:
-          res=!1;
-          break;
-        }
         
-        return res;
+        
+        if(_type=="jpg"||_type=="gif"||_type=="png"||_type=="jpeg"||_type=="ico"){
+          return "IMG";
+        }
+        if(_type=="mp3"||_type=="ogg"||_type=="wav")
+        return "AUDIO";
+        if(_type=="mp4"||_type=="webm")
+        return "VIDEO";
+        if(_type=="css")
+        return "STYLE";
+        if(_type=="js")
+        return "SCRIPT";
+        return !1;
       }
     }
   };
@@ -176,7 +175,8 @@
     options = $.extend({}, $.fn.loading.options, options);
     //options.A=options.items;
     if (typeof(options.loaded) != "function") options.loaded = null;
-    if (typeof(options.customAnimate) != "function"||typeof(options.customAnimate) != "boolean") options.customAnimate = false;
+
+    if (typeof(options.customAnimate) != "function"&&typeof(options.customAnimate) != "boolean") options.customAnimate = false;
     if (typeof(options.items) == "string") options.items = options.toLowerCase().split("A");
     if (!Array.isArray(options.items))  options.items = [];
     

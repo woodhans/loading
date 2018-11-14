@@ -152,20 +152,18 @@
         typeof (base.$opt.cancel)=="function" && base.$opt.cancel.call();
       },
       filetype:function(string){
-        _type=string.split('.').pop().toLowerCase().split("?")[0];
+        _type=string.split('.').pop().toLowerCase();
         
-        
-        
-        if(_type=="jpg"||_type=="gif"||_type=="png"||_type=="jpeg"||_type=="ico"){
+        if(/^(jpg|gif|png|jpeg|ico)/.test(_type)){
           return "IMG";
         }
-        if(_type=="mp3"||_type=="ogg"||_type=="wav")
+        if(/^(mp3|ogg|wav)/.test(_type))
         return "AUDIO";
-        if(_type=="mp4"||_type=="webm")
+        if(/^(mp4|webm)/.test(_type))
         return "VIDEO";
-        if(_type=="css")
+        if(/^css/.test(_type))
         return "STYLE";
-        if(_type=="js")
+        if(/^js/.test(_type))
         return "SCRIPT";
         return !1;
       }
